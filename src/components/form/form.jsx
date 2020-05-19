@@ -1,8 +1,10 @@
-import React from 'react';
-import { Form, Input, Button, Checkbox } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Checkbox, Radio } from 'antd';
+import { Redirect } from 'react-router-dom';
 import 'antd/dist/antd.css';
 
 const FormWrapper = (props) => {
+    const [isAuth, setIsAuth] = useState(Boolean(localStorage.getItem('key')));
     const { singUp } = props;
     const layout = {
         labelCol: { span: 8 },
@@ -25,14 +27,24 @@ const FormWrapper = (props) => {
             },
         })
             .then((res) => res.json())
-            .then((res) => console.log('ответ', res));
+            .then((res) => {
+                localStorage.setItem('key', res.idToken);
+                setIsAuth(true);
+            });
     };
 
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
 
-    return (
+    const setStatus = () => {
+        if (props.up) props.handlers.defineUpAsFalse();
+        else props.handlers.defineUpAsTrue();
+    };
+
+    const toRender = isAuth ? (
+        <Redirect to="/" />
+    ) : (
         <div className="form_wrapper">
             {' '}
             <Form
@@ -41,6 +53,13 @@ const FormWrapper = (props) => {
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}>
+                <Form.Item {...tailLayout}>
+                    <Radio.Group value={'size'} onChange={setStatus}>
+                        <Radio.Button value="large">Войти</Radio.Button>
+                        <Radio.Button value="default">Зарегестрироваться</Radio.Button>
+                    </Radio.Group>
+                </Form.Item>
+
                 <Form.Item
                     label="Email"
                     name="email"
@@ -62,12 +81,14 @@ const FormWrapper = (props) => {
 
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
-                        Submit
+                        {props.action}
                     </Button>
                 </Form.Item>
             </Form>
         </div>
     );
+
+    return toRender;
 };
 
 export default FormWrapper;

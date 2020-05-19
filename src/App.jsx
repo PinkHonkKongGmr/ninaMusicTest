@@ -1,11 +1,15 @@
 import React from 'react';
-import FormWrapper from './components/form';
+import StartPage from './components/startPage';
+import LoginInUp from './components/logInUp';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 const App = () => (
-    <div>
-        <FormWrapper singUp={true} />
-        <FormWrapper singUp={false} />
-    </div>
+    <Router>
+        <Switch>
+            <Route path="/" component={StartPage} exact />
+            <Route path="/auth" component={LoginInUp} />
+        </Switch>
+    </Router>
 );
 
 export default App;
